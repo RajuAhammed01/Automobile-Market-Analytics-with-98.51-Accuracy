@@ -91,7 +91,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Main UI Structure
-st.markdown('<p class="gradient-text">Smart Car Valuation</p>', unsafe_allow_html=True)
+st.markdown('<p class="gradient-text" style= "font-size: 3rem; font-weight: bold;">Smart Car Valuation</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtext">Get a fast and reliable estimate based on your vehicle\'s specifications.</p>', unsafe_allow_html=True)
 
 # Load the model
@@ -147,35 +147,43 @@ with col2:
         horsepower = st.number_input("Horsepower (HP)", min_value=50, max_value=1000, value=186)
     with col2_sub4:
         fuel_efficiency = st.number_input("Fuel Efficiency (MPG)", min_value=5.0, max_value=150.0, value=30.0, format="%.2f")
-    
-    # Prediction Section
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    
-    predict_clicked = st.button("Predict Price", key="predict")
-    
-    # Place result inside the right column
-    if predict_clicked:
-        input_data = {
-            'Make': make, 'Model': model_name, 'Year': year, 'Fuel_Type': fuel_type,
-            'Transmission': transmission, 'Engine_Size': engine_size, 'Mileage': mileage,
-            'Horsepower': horsepower, 'Torque': torque, 'Owners': owners,
-            'Accident_History': accident_history_val, 'Service_History': service_history,
-            'Color': color, 'Body_Type': body_type, 'Drivetrain': drivetrain,
-            'Fuel_Efficiency': fuel_efficiency, 'Location': location
-        }
-        input_df = pd.DataFrame([input_data])
         
-        prediction = model.predict(input_df)[0]
-        
-        st.markdown(f"""
-        <div class="result-box">
-            <div class="result-title">Estimated Selling Price</div>
-            <div class="result-price">${prediction:,.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
+# --- Prediction Section (Centered) ---
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-st.markdown("""
-<div style="text-align: center; color: #8b949e; margin-top: 50px; font-size: 0.9rem;">
-    <p>Powered by XGBoost AI Model</p>
-</div>
-""", unsafe_allow_html=True)
+# Placeholder for the result box so it appears above the button
+result_placeholder = st.empty()
+
+col_btn_left, col_btn_center, col_btn_right = st.columns([3, 2, 3])
+
+with col_btn_center:
+    predict_clicked = st.button("Predict Price", key="predict")
+    st.markdown("""
+    <div style="text-align: center; color: #8b949e; margin-top: 10px; font-size: 0.9rem;">
+        <p>Powered by XGBoost</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+if predict_clicked:
+    input_data = {
+        'Make': make, 'Model': model_name, 'Year': year, 'Fuel_Type': fuel_type,
+        'Transmission': transmission, 'Engine_Size': engine_size, 'Mileage': mileage,
+        'Horsepower': horsepower, 'Torque': torque, 'Owners': owners,
+        'Accident_History': accident_history_val, 'Service_History': service_history,
+        'Color': color, 'Body_Type': body_type, 'Drivetrain': drivetrain,
+        'Fuel_Efficiency': fuel_efficiency, 'Location': location
+    }
+    input_df = pd.DataFrame([input_data])
+    
+    prediction = model.predict(input_df)[0]
+    
+    # Inject the result into the placeholder above the button
+    with result_placeholder.container():
+        col_res_left, col_res_center, col_res_right = st.columns([1, 2, 1])
+        with col_res_center:
+            st.markdown(f"""
+            <div class="result-box" style="margin-bottom: 20px;">
+                <div class="result-title">Estimated Selling Price</div>
+                <div class="result-price">${prediction:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
